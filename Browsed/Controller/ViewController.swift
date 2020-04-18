@@ -20,6 +20,7 @@ class ViewController: UIViewController {
     
 //    var urlsArray = [String]()
     lazy var browsers = [Browser]()
+    var expandedArray: [Bool] = []
     var user: User!
 //    let ref = Database.database().reference(withPath: "tabData\(user.uid)")
     
@@ -51,6 +52,7 @@ class ViewController: UIViewController {
 
                 let value = snapshot.value as? NSDictionary
                 var newItems: [Browser] = []
+                self.expandedArray = []
                 if let browsers = value?.allValues {
                 for item in browsers{
                         if let eachItem = item as? [String: AnyObject]{
@@ -60,6 +62,7 @@ class ViewController: UIViewController {
                             let id = eachItem["id"] as! String
                             let browser = Browser(url: urlString, id: id, noOfBrowsers: numberOfTabs)
                             newItems.append(browser)
+                            self.expandedArray.append(false)
                             
                         }
                         
@@ -74,8 +77,8 @@ class ViewController: UIViewController {
                 print("Firebase node doesn't exist")
                 self.browsers.removeAll()
                 self.browsersTableView.reloadData()
-               
-//               self.tableView.reloadData()
+                
+                WebCacheCleaner.clean()
            }
             
         })
@@ -148,18 +151,16 @@ class ViewController: UIViewController {
         //1. Create the alert controller.
         let alert = UIAlertController(title: "Warning", message: "Are you sure you want to close all tabs", preferredStyle: .alert)
         
-        let okBtn = UIAlertAction(title: "Close", style: .default, handler: { [weak alert] (_) in
+        let okBtn = UIAlertAction(title: "Close", style: .default, handler: {  (_) in
             
             let uid = Auth.auth().currentUser!.uid
             let ref = Database.database().reference(withPath: "tabData").child(uid)
             ref.removeValue()
+            
         })
         
-        let cancelbtn = UIAlertAction(title: "Cancel", style: .default, handler: { [weak alert] (_) in
-//            let textField = alert?.textFields![0] // Force unwrapping because we know it exists.
-//            print("Text field: \(String(describing: textField?.text))")
-        })
-        // 3. Grab the value from the text field, and print it when the user clicks OK.
+        let cancelbtn = UIAlertAction(title: "Cancel", style: .default, handler: {  (_) in })
+
         alert.addAction(cancelbtn)
         alert.addAction(okBtn)
         
@@ -306,17 +307,27 @@ class ViewController: UIViewController {
     }
     
     @objc private func expandButtonTapped(_ sender: UIButton){
-        
-        let url = self.browsers[sender.tag].url
-        
-        let vc = storyboard?.instantiateViewController(withIdentifier: "ExpandedWebViewController") as! ExpandedWebViewController
-        if let cell = browsersTableView.cellForRow(at: IndexPath(row: sender.tag, section: 0)) as? BrowserTableViewCell {
-            cell.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies({ (cookies) in
-                vc.cookies = cookies
-                vc.urlString = url
-                self.navigationController?.pushViewController(vc, animated: true)
-            })
-        }
+      
+        expandedArray[sender.tag] = !expandedArray[sender.tag]
+        browsersTableView.reloadData()
+//        let url = self.browsers[sender.tag].url
+//
+//        let vc = storyboard?.instantiateViewController(withIdentifier: "ExpandedWebViewController") as! ExpandedWebViewController
+//        print("sender.tag: \(sender.tag)")
+//        if let cell = browsersTableView.cellForRow(at: IndexPath(row: sender.tag, section: 0)) as? BrowserTableViewCell {
+//            //clear existing cookies
+//            vc.cookies = nil
+//            cell.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies({ (cookies) in
+//
+////                vc.cookies = cookies
+//                vc.urlString = url
+//                for cookie in cookies {
+//                    print("cookie : \(cookie)")
+//                }
+////                WebCacheCleaner.clean()
+//                self.navigationController?.pushViewController(vc, animated: true)
+//            })
+//        }
         
         
     }
@@ -364,11 +375,36 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BrowserTableViewCell") as! BrowserTableViewCell
-            
-        let url = self.browsers[indexPath.row].url
-        let urlRequest = URLRequest(url: URL(string: url)!)
-        cell.webView.load(urlRequest)
         
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        cell.webView = WKWebView(frame: cell.containerWebView.bounds, configuration: configuration)
+        var image : UIImage? = nil
+        if #available(iOS 13.0, *) {
+            image = UIImage.init(systemName: "arrow.up.left.and.arrow.down.right")
+            if expandedArray[indexPath.row] {
+                image = UIImage(systemName: "arrow.down.right.and.arrow.up.left")
+            }
+        } else {
+            
+        }
+        
+        cell.expandBtn.setImage(image, for: .normal)
+//        cell.webView.uiDelegate = self
+//        cell.webView.navigationDelegate = self
+        cell.containerWebView.addSubview(cell.webView)
+        
+        cell.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { (cookies) in
+            for cookie in cookies {
+                print("cookie : \(cookie)")
+            }
+        }
+        
+        let urlStr = self.browsers[indexPath.row].url
+        if let url = URL.init(string: urlStr) {
+            let urlRequest = URLRequest(url: url)
+            cell.webView.load(urlRequest)
+        }
         
         cell.expandBtn.tag = indexPath.row
         cell.closeBtn.tag = indexPath.row
@@ -376,19 +412,21 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         cell.expandBtn.addTarget(self, action: #selector(expandButtonTapped(_:)), for: .touchUpInside)
         cell.closeBtn.addTarget(self, action: #selector(closeButtonTapped(_:)), for: .touchUpInside)
         cell.duplicateBtn.addTarget(self, action: #selector(duplicateButtonTapped(_:)), for: .touchUpInside)
-        cell.urlTextField.text = url
+        cell.urlTextField.text = urlStr
         print("cell.webView \(cell.webView as Any)")
-//        cell.browserWebView.configuration.websiteDataStore.httpCookieStore.getAllCookies { (cookies) in
-//            for cookie in cookies {
-//                print("cookie: \(cookie)")
-//            }
-//        }
+
         print("===\n\n===")
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 400
+        if expandedArray[indexPath.row] {
+            return tableView.frame.height
+        }
+        else {
+            return 400
+        }
+        
     }
     
 }

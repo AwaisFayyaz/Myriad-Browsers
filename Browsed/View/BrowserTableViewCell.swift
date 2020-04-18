@@ -26,18 +26,9 @@ class BrowserTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-//        let configuration = WKWebViewConfiguration()
-//        configuration.processPool =
-        
-        let configuration1 = WKWebViewConfiguration()
-        configuration1.websiteDataStore = WKWebsiteDataStore.nonPersistent()
-        self.webView = WKWebView(frame: self.bounds, configuration: configuration1)
-        self.webView.uiDelegate = self
-        self.webView.navigationDelegate = self
-        containerWebView.addSubview(webView)
+
     
     }
-
 
     @IBAction func backButtonTapped(_ sender: Any) {
         

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DE8F883E5EFF449EACFFD1F7 /* Pods_Myriad.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E02E8A72096255D745EEBDC1 /* Pods_Myriad.framework */; };
+		E7222F6F244B348A0036FC5E /* CacheCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7222F6E244B348A0036FC5E /* CacheCleaner.swift */; };
 		FA1EFE1C23E99332007FBFD0 /* Browser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1EFE1B23E99332007FBFD0 /* Browser.swift */; };
 		FA1EFE1E23EB123F007FBFD0 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1EFE1D23EB123F007FBFD0 /* User.swift */; };
 		FA54221423E759B200F7C7F0 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA54221323E759B200F7C7F0 /* LoginViewController.swift */; };
@@ -27,6 +28,7 @@
 /* Begin PBXFileReference section */
 		5C9C286920156E9777A378F2 /* Pods-Myriad.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Myriad.release.xcconfig"; path = "Target Support Files/Pods-Myriad/Pods-Myriad.release.xcconfig"; sourceTree = "<group>"; };
 		E02E8A72096255D745EEBDC1 /* Pods_Myriad.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Myriad.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E7222F6E244B348A0036FC5E /* CacheCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheCleaner.swift; sourceTree = "<group>"; };
 		F94A8D6B74F9299BB5F93C09 /* Pods-Myriad.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Myriad.debug.xcconfig"; path = "Target Support Files/Pods-Myriad/Pods-Myriad.debug.xcconfig"; sourceTree = "<group>"; };
 		FA1EFE1B23E99332007FBFD0 /* Browser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Browser.swift; sourceTree = "<group>"; };
 		FA1EFE1D23EB123F007FBFD0 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				FADE821D23C9B44500D14AE0 /* AppDelegate.swift */,
 				FADE821F23C9B44500D14AE0 /* SceneDelegate.swift */,
 				FA54221523E7F5CC00F7C7F0 /* GoogleService-Info.plist */,
+				E7222F6E244B348A0036FC5E /* CacheCleaner.swift */,
 			);
 			path = Supporting;
 			sourceTree = "<group>";
@@ -287,6 +290,7 @@
 				FADE823223C9B80600D14AE0 /* BrowserTableViewCell.swift in Sources */,
 				FA685D5023E94A7F0031BD24 /* Firebase Service.swift in Sources */,
 				FADE823423CB073200D14AE0 /* ExpandedWebViewController.swift in Sources */,
+				E7222F6F244B348A0036FC5E /* CacheCleaner.swift in Sources */,
 				FADE822223C9B44500D14AE0 /* ViewController.swift in Sources */,
 				FADE821E23C9B44500D14AE0 /* AppDelegate.swift in Sources */,
 				FA1EFE1E23EB123F007FBFD0 /* User.swift in Sources */,
