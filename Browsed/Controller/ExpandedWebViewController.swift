@@ -19,7 +19,7 @@ class ExpandedWebViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+    
         if let cookies = cookies {
             for cookie in cookies {
                 browserWebView.configuration.websiteDataStore.httpCookieStore.setCookie(cookie, completionHandler: nil)
