@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import FirebaseAuth
 
+
 class ViewController: UIViewController {
 
     //MARK: IOutlets
@@ -23,7 +24,9 @@ class ViewController: UIViewController {
     var expandedArray: [Bool] = []
     var user: User!
 //    let ref = Database.database().reference(withPath: "tabData\(user.uid)")
-    
+    var imageExpand = UIImage.init(named: "expand")!
+    var imageCollapse = UIImage(named: "collapse")!
+               
     //MARK: View Life Cycle
     
     override func viewDidLoad() {
@@ -311,6 +314,13 @@ class ViewController: UIViewController {
         expandedArray[sender.tag] = !expandedArray[sender.tag]
         browsersTableView.beginUpdates()
         browsersTableView.endUpdates()
+        let indexPath = IndexPath.init(row: sender.tag, section: 0)
+        if let cell = browsersTableView.cellForRow(at: indexPath) as? BrowserTableViewCell {
+            let image = expandedArray[sender.tag] ? imageCollapse : imageExpand
+            cell.expandBtn.setImage(image, for: .normal)
+        }
+        
+        
 //        let url = self.browsers[sender.tag].url
 //
 //        let vc = storyboard?.instantiateViewController(withIdentifier: "ExpandedWebViewController") as! ExpandedWebViewController
@@ -386,15 +396,11 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         cell.webView.fixInView(cell.containerWebView)
         
         var image : UIImage? = nil
-        if #available(iOS 13.0, *) {
-            image = UIImage.init(systemName: "arrow.up.left.and.arrow.down.right")
-            if expandedArray[indexPath.row] {
-                image = UIImage(systemName: "arrow.down.right.and.arrow.up.left")
-            }
-        } else {
-            
-        }
         
+        image = imageExpand
+        if expandedArray[indexPath.row] {
+            image = imageCollapse
+        }
         cell.expandBtn.setImage(image, for: .normal)
 //        cell.webView.uiDelegate = self
 //        cell.webView.navigationDelegate = self
