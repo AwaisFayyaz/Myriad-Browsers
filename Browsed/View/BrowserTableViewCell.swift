@@ -30,6 +30,18 @@ class BrowserTableViewCell: UITableViewCell {
     
     }
 
+    override func prepareForReuse() {
+        print("prepareForReuse called")
+        super.prepareForReuse()
+        browserWebView.configuration.websiteDataStore.httpCookieStore.getAllCookies { (cookies) in
+            for cookie in cookies {
+                self.browserWebView.configuration.websiteDataStore.httpCookieStore.delete(cookie, completionHandler: nil)
+            }
+            
+        }
+    }
+    
+
     @IBAction func backButtonTapped(_ sender: Any) {
         
         browserWebView.goBack()

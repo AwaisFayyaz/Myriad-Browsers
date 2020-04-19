@@ -309,7 +309,8 @@ class ViewController: UIViewController {
     @objc private func expandButtonTapped(_ sender: UIButton){
       
         expandedArray[sender.tag] = !expandedArray[sender.tag]
-        browsersTableView.reloadData()
+        browsersTableView.beginUpdates()
+        browsersTableView.endUpdates()
 //        let url = self.browsers[sender.tag].url
 //
 //        let vc = storyboard?.instantiateViewController(withIdentifier: "ExpandedWebViewController") as! ExpandedWebViewController
@@ -378,7 +379,12 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        
+        cell.containerWebView.addSubview(cell.webView)
         cell.webView = WKWebView(frame: cell.containerWebView.bounds, configuration: configuration)
+        
+        cell.webView.fixInView(cell.containerWebView)
+        
         var image : UIImage? = nil
         if #available(iOS 13.0, *) {
             image = UIImage.init(systemName: "arrow.up.left.and.arrow.down.right")
@@ -392,7 +398,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         cell.expandBtn.setImage(image, for: .normal)
 //        cell.webView.uiDelegate = self
 //        cell.webView.navigationDelegate = self
-        cell.containerWebView.addSubview(cell.webView)
+        
         
         cell.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { (cookies) in
             for cookie in cookies {
@@ -404,6 +410,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         if let url = URL.init(string: urlStr) {
             let urlRequest = URLRequest(url: url)
             cell.webView.load(urlRequest)
+            cell.browserWebView.load(urlRequest)
         }
         
         cell.expandBtn.tag = indexPath.row
@@ -419,6 +426,9 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         return cell
     }
     
+    //MARK:- Methods
+     
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if expandedArray[indexPath.row] {
             return tableView.frame.height
@@ -429,4 +439,16 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         
     }
     
+}
+
+extension UIView {
+    func fixInView(_ container: UIView!) -> Void{
+        self.translatesAutoresizingMaskIntoConstraints = false;
+        self.frame = container.frame;
+        container.addSubview(self);
+        NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: container, attribute: .leading, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: container, attribute: .trailing, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: container, attribute: .top, multiplier: 1.0, constant: 0).isActive = true
+        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: container, attribute: .bottom, multiplier: 1.0, constant: 0).isActive = true
+    }
 }
