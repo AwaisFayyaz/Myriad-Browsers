@@ -73,7 +73,10 @@ class ViewController: UIViewController {
                     
                     self.browsers = newItems
                     print(self.browsers, "self.browsers")
-                    self.browsersTableView.reloadData()
+                    DispatchQueue.main.async {
+                        self.browsersTableView.reloadData()
+                    }
+                    
                 }
                
            } else {
@@ -159,7 +162,11 @@ class ViewController: UIViewController {
             let uid = Auth.auth().currentUser!.uid
             let ref = Database.database().reference(withPath: "tabData").child(uid)
             ref.removeValue()
+            self.browsers.removeAll()
+            self.cleanCookies()
+            WebCacheCleaner.clean()
             
+            self.browsersTableView.reloadData()
         })
         
         let cancelbtn = UIAlertAction(title: "Cancel", style: .default, handler: {  (_) in })
@@ -170,6 +177,21 @@ class ViewController: UIViewController {
 
         // 4. Present the alert.
         self.present(alert, animated: true, completion: nil)
+        
+    }
+    
+    func cleanCookies() {
+        for i in 0..<browsers.count {
+            if let cell = browsersTableView.cellForRow(at: IndexPath.init(row: i, section: 0)) as? BrowserTableViewCell {
+                cell.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { (cookies) in
+                    for cookie in cookies {
+                        cell.webView.configuration.websiteDataStore.httpCookieStore.delete(cookie, completionHandler: nil)
+                    }
+                }
+            }
+        }
+        
+        
         
     }
     
@@ -385,14 +407,9 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard browsers.count > 0 else { return .init() }
         let cell = tableView.dequeueReusableCell(withIdentifier: "BrowserTableViewCell") as! BrowserTableViewCell
-        
-        let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
-        
         cell.containerWebView.addSubview(cell.webView)
-        cell.webView = WKWebView(frame: cell.containerWebView.bounds, configuration: configuration)
-        
         cell.webView.fixInView(cell.containerWebView)
         
         var image : UIImage? = nil
@@ -415,8 +432,14 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         let urlStr = self.browsers[indexPath.row].url
         if let url = URL.init(string: urlStr) {
             let urlRequest = URLRequest(url: url)
-            cell.webView.load(urlRequest)
-            cell.browserWebView.load(urlRequest)
+            if cell.webView.url == nil || true {
+                cell.webView.load(urlRequest)
+                cell.browserWebView.load(urlRequest)
+            }
+            else {
+                print("cell.webView.url == nil failed: \(cell.webView.url as Any)")
+            }
+            
         }
         
         cell.expandBtn.tag = indexPath.row
@@ -426,7 +449,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource{
         cell.closeBtn.addTarget(self, action: #selector(closeButtonTapped(_:)), for: .touchUpInside)
         cell.duplicateBtn.addTarget(self, action: #selector(duplicateButtonTapped(_:)), for: .touchUpInside)
         cell.urlTextField.text = urlStr
-        print("cell.webView \(cell.webView as Any)")
+//        print("cell.webView \(cell.webView as Any)")
 
         print("===\n\n===")
         return cell

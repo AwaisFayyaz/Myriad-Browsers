@@ -26,19 +26,30 @@ class BrowserTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-
+        print("awakeFromNib()")
     
     }
-
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        print("required init?(coder: NSCoder) called ")
+        
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        
+        webView = WKWebView(frame: .zero, configuration: configuration)
+        
+    }
+    
     override func prepareForReuse() {
         print("prepareForReuse called")
         super.prepareForReuse()
-        browserWebView.configuration.websiteDataStore.httpCookieStore.getAllCookies { (cookies) in
-            for cookie in cookies {
-                self.browserWebView.configuration.websiteDataStore.httpCookieStore.delete(cookie, completionHandler: nil)
-            }
-            
-        }
+//        browserWebView.configuration.websiteDataStore.httpCookieStore.getAllCookies { (cookies) in
+//            for cookie in cookies {
+//                self.browserWebView.configuration.websiteDataStore.httpCookieStore.delete(cookie, completionHandler: nil)
+//            }
+//
+//        }
     }
     
 
