@@ -159,11 +159,14 @@ class ViewController: UIViewController {
         
         let okBtn = UIAlertAction(title: "Close", style: .default, handler: {  (_) in
             
+            self.cleanCookies()
+            
             let uid = Auth.auth().currentUser!.uid
             let ref = Database.database().reference(withPath: "tabData").child(uid)
             ref.removeValue()
+            
             self.browsers.removeAll()
-            self.cleanCookies()
+            
             WebCacheCleaner.clean()
             
             self.browsersTableView.reloadData()
